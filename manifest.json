@@ -1,7 +1,7 @@
 {
 	"id": "mrj-note-uid",
 	"name": "Notes UID - generate UIDs and open notes using them",
-	"version": "0.0.2",
+	"version": "0.0.3",
 	"minAppVersion": "0.9.12",
 	"description": "Generates UID for notes. Open notes using them.",
 	"author": "mrjackphil",

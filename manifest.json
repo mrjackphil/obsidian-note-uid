@@ -1,5 +1,5 @@
 {
-	"id": "mrj-uid-link",
+	"id": "mrj-note-uid",
 	"name": "Notes UID - generate UIDs and open notes using them",
 	"version": "0.0.1",
 	"minAppVersion": "0.9.12",

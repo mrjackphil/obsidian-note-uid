@@ -1,5 +1,5 @@
 {
-  "name": "mrj-uid-link",
+  "name": "mrj-note-uid",
   "version": "0.12.0",
   "description": "Generates UID for notes. Open notes using them.",
   "main": "main.js",

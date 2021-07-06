@@ -18,7 +18,7 @@ export default class ObsidianPlugin extends Plugin {
 
 		this.addSettingTab(new SettingTab(this.app, this));
 		this.registerObsidianProtocolHandler("open-by-uid", async (e) => {
-		    const openUID = e.uid;
+		    const openUID = decodeURIComponent(e.uid || '');
 
 			if (e.uid) {
 			    const files = this.app.vault.getFiles();

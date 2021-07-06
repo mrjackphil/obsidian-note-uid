@@ -1,56 +1,39 @@
 import { App, Modal, Notice, Plugin, PluginSettingTab, Setting } from 'obsidian';
 
 interface MyPluginSettings {
-	mySetting: string;
+	idField: string;
 }
 
 const DEFAULT_SETTINGS: MyPluginSettings = {
-	mySetting: 'default'
+	idField: 'id'
 }
 
-export default class MyPlugin extends Plugin {
+export default class ObsidianPlugin extends Plugin {
 	settings: MyPluginSettings;
 
 	async onload() {
-		console.log('loading plugin');
+		console.log('loading Obsidian note UID plugin');
 
 		await this.loadSettings();
 
-		this.addRibbonIcon('dice', 'Sample Plugin', () => {
-			new Notice('This is a notice!');
-		});
+		this.addSettingTab(new SettingTab(this.app, this));
+		this.registerObsidianProtocolHandler("open-by-uid", async (e) => {
+		    const openUID = e.uid;
 
-		this.addStatusBarItem().setText('Status Bar Text');
+			if (e.uid) {
+			    const files = this.app.vault.getFiles();
 
-		this.addCommand({
-			id: 'open-sample-modal',
-			name: 'Open Sample Modal',
-			// callback: () => {
-			// 	console.log('Simple Callback');
-			// },
-			checkCallback: (checking: boolean) => {
-				let leaf = this.app.workspace.activeLeaf;
-				if (leaf) {
-					if (!checking) {
-						new SampleModal(this.app).open();
+				for (const file of files) {
+					const idKey = this.settings.idField;
+					const frontmatterId = String(this.app.metadataCache.getFileCache(file)?.frontmatter?.[idKey] || '');
+
+					if (frontmatterId && openUID === frontmatterId) {
+					    this.app.workspace.activeLeaf.openFile(file).then(e => console.log(e));
 					}
-					return true;
 				}
-				return false;
+
 			}
-		});
-
-		this.addSettingTab(new SampleSettingTab(this.app, this));
-
-		this.registerCodeMirror((cm: CodeMirror.Editor) => {
-			console.log('codemirror', cm);
-		});
-
-		this.registerDomEvent(document, 'click', (evt: MouseEvent) => {
-			console.log('click', evt);
-		});
-
-		this.registerInterval(window.setInterval(() => console.log('setInterval'), 5 * 60 * 1000));
+		})
 	}
 
 	onunload() {
@@ -82,10 +65,10 @@ class SampleModal extends Modal {
 	}
 }
 
-class SampleSettingTab extends PluginSettingTab {
-	plugin: MyPlugin;
+class SettingTab extends PluginSettingTab {
+	plugin: ObsidianPlugin;
 
-	constructor(app: App, plugin: MyPlugin) {
+	constructor(app: App, plugin: ObsidianPlugin) {
 		super(app, plugin);
 		this.plugin = plugin;
 	}
@@ -95,17 +78,16 @@ class SampleSettingTab extends PluginSettingTab {
 
 		containerEl.empty();
 
-		containerEl.createEl('h2', {text: 'Settings for my awesome plugin.'});
+		containerEl.createEl('h2', {text: 'Settings for UID link plugin'});
 
 		new Setting(containerEl)
-			.setName('Setting #1')
-			.setDesc('It\'s a secret')
+			.setName('Frontmatter id field')
+			.setDesc('Field which used to generate and identify UID')
 			.addText(text => text
-				.setPlaceholder('Enter your secret')
-				.setValue('')
+				.setPlaceholder('UID field')
+				.setValue(this.plugin.settings.idField)
 				.onChange(async (value) => {
-					console.log('Secret: ' + value);
-					this.plugin.settings.mySetting = value;
+					this.plugin.settings.idField = value;
 					await this.plugin.saveSettings();
 				}));
 	}
